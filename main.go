@@ -1,31 +1,25 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"net/http"
+)
 
-type rect struct {
-	width, height int
+func hello(w http.ResponseWriter, req *http.Request) {
+	fmt.Fprintf(w, "hello\n")
 }
 
-func (r *rect) area() int {
-	return r.width * r.height
-}
-
-func (r rect) perim() int {
-	return 2*r.width + 2*r.height
-}
-
-func (r rect) a() rect{
-	return r
+func headers(w http.ResponseWriter, req *http.Request) {
+	for name, headers := range req.Header {
+		for _, h := range headers {
+			fmt.Fprintf(w, "%v: %v\n", name, h)
+		}
+	}
 }
 
 func main() {
-	r := rect{width: 10, height: 5}
+	http.HandleFunc("/hello", hello)
+	http.HandleFunc("/headers", headers)
 
-	fmt.Println("area: ", r.area())
-	fmt.Println("perim:", r.perim())
-
-	rp := &r
-	fmt.Println("area: ", rp.area())
-	fmt.Println("perim:", rp.perim())
-	fmt.Println(rp.a().height)
+	http.ListenAndServe(":8090", nil)
 }
